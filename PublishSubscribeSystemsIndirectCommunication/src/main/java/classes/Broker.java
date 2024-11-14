@@ -1,8 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package classes;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -10,6 +7,7 @@ import java.util.*;
 public class Broker {
     private ServerSocket serverSocket;
     private Map<String, List<DataOutputStream>> topicSubscribers = new HashMap<>();
+    private Map<String, List<String>> topicMessages = new HashMap<>(); // Armazena todas as mensagens de cada tópico
 
     public void start(int port) {
         try {
@@ -28,8 +26,15 @@ public class Broker {
 
                 if ("SUBSCRIBER".equalsIgnoreCase(clientType)) {
                     subscribeToTopic(topic, out);
+                    sendStoredMessages(topic, out); // Envia as mensagens armazenadas para o novo assinante
                 } else if ("PUBLISHER".equalsIgnoreCase(clientType)) {
-                    publishToTopic(topic, in);
+                    new Thread(() -> {
+                        try {
+                            publishToTopic(topic, in);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
                 }
             }
         } catch (IOException e) {
@@ -48,7 +53,26 @@ public class Broker {
         String message;
         while (true) {
             message = in.readUTF(); 
-            notifySubscribers(topic, message); 
+            storeMessage(topic, message); // Armazena a mensagem no tópico
+            notifySubscribers(topic, message); // Envia a mensagem para os assinantes atuais
+        }
+    }
+
+    private void storeMessage(String topic, String message) {
+        topicMessages.putIfAbsent(topic, new ArrayList<>());
+        topicMessages.get(topic).add(message); // Armazena todas as mensagens do tópico
+    }
+
+    private void sendStoredMessages(String topic, DataOutputStream out) {
+        List<String> messages = topicMessages.get(topic);
+        if (messages != null) {
+            try {
+                for (String message : messages) {
+                    out.writeUTF(message); // Envia todas as mensagens armazenadas para o novo assinante
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -57,7 +81,7 @@ public class Broker {
         if (subscribers != null) {
             for (DataOutputStream out : subscribers) {
                 try {
-                    out.writeUTF(message); 
+                    out.writeUTF(message); // Envia a nova mensagem para todos os assinantes conectados
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -65,4 +89,3 @@ public class Broker {
         }
     }
 }
-
