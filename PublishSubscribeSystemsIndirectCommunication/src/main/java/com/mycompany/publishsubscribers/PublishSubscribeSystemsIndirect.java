@@ -2,13 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
 
-package com.mycompany.publishsubscribesystemsindirectcommunication;
+package com.mycompany.publishsubscribers;
 
 import classes.Broker;
 import classes.Client;
 import java.util.Scanner;
 
-public class PublishSubscribeSystemsIndirectCommunication {
+public class PublishSubscribeSystemsIndirect {
 
  public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
