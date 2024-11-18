@@ -11,4 +11,5 @@
         <maven.compiler.target>22</maven.compiler.target>
         <exec.mainClass>com.mycompany.publishsubscribes.PublishSubscribeSystemsIndirect/</exec.mainClass>
     </properties>
+    <name>PublishSubscriberSystem</name>
 </project>
