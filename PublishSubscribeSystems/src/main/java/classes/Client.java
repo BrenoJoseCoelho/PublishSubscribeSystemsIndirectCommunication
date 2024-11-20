@@ -9,9 +9,10 @@ import java.net.*;
 import java.util.Scanner;
 
 public class Client {
+
     private String clientType;
     private String topic;
-    
+
     public Client(String clientType, String topic) {
         this.clientType = clientType;
         this.topic = topic;
@@ -33,11 +34,11 @@ public class Client {
             }
 
             if ("PUBLISHER".equalsIgnoreCase(clientType)) {
-                sendMessage(out); 
+                sendMessage(out);
             }
 
             while (true) {
-              
+
                 Thread.sleep(100000);
             }
         } catch (IOException | InterruptedException e) {
@@ -57,11 +58,11 @@ public class Client {
     private void sendMessage(DataOutputStream out) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Digite suas mensagens para enviar ao broker (digite 'exit' para sair):");
-
+        System.out.println();
         while (true) {
             String message = scanner.nextLine();
             if ("exit".equalsIgnoreCase(message)) {
-                break; 
+                break;
             }
 
             out.writeUTF(message);
@@ -69,6 +70,6 @@ public class Client {
             System.out.println();
         }
 
-        scanner.close(); 
+        scanner.close();
     }
 }

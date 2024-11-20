@@ -5,14 +5,16 @@ import java.net.*;
 import java.util.*;
 
 public class Broker {
+
     private ServerSocket serverSocket;
     private Map<String, List<DataOutputStream>> topicSubscribers = new HashMap<>();
-    private Map<String, List<String>> topicMessages = new HashMap<>(); // Armazena todas as mensagens de cada tópico
+    private Map<String, List<String>> topicMessages = new HashMap<>();
 
     public void start(int port) {
         try {
             serverSocket = new ServerSocket(port);
             System.out.println("Broker iniciado na porta " + port);
+            System.out.println();
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -23,10 +25,11 @@ public class Broker {
                 String topic = in.readUTF();
 
                 System.out.println(clientType + " se conectou no tópico: " + topic);
+                System.out.println();
 
                 if ("SUBSCRIBER".equalsIgnoreCase(clientType)) {
                     subscribeToTopic(topic, out);
-                    sendStoredMessages(topic, out); // Envia as mensagens armazenadas para o novo assinante
+                    sendStoredMessages(topic, out);
                 } else if ("PUBLISHER".equalsIgnoreCase(clientType)) {
                     new Thread(() -> {
                         try {
@@ -46,21 +49,23 @@ public class Broker {
         topicSubscribers.putIfAbsent(topic, new ArrayList<>());
         topicSubscribers.get(topic).add(out);
         System.out.println("Novo assinante para o tópico: " + topic);
+        System.out.println();
     }
 
     private void publishToTopic(String topic, DataInputStream in) throws IOException {
         System.out.println("Publicador enviando mensagens para o tópico: " + topic);
+        System.out.println();
         String message;
         while (true) {
-            message = in.readUTF(); 
-            storeMessage(topic, message); // Armazena a mensagem no tópico
-            notifySubscribers(topic, message); // Envia a mensagem para os assinantes atuais
+            message = in.readUTF();
+            storeMessage(topic, message);
+            notifySubscribers(topic, message);
         }
     }
 
     private void storeMessage(String topic, String message) {
         topicMessages.putIfAbsent(topic, new ArrayList<>());
-        topicMessages.get(topic).add(message); // Armazena todas as mensagens do tópico
+        topicMessages.get(topic).add(message);
     }
 
     private void sendStoredMessages(String topic, DataOutputStream out) {
@@ -68,7 +73,7 @@ public class Broker {
         if (messages != null) {
             try {
                 for (String message : messages) {
-                    out.writeUTF(message); // Envia todas as mensagens armazenadas para o novo assinante
+                    out.writeUTF(message);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
